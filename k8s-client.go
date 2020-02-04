@@ -2,7 +2,7 @@ package main
 
 import (
 	//"fmt"
-	"k8s-client-go/resources"
+	"github.com/gakmi/k8s-client-go/resources"
 )
 
 func main() {
@@ -20,19 +20,19 @@ func main() {
 	//	Namespace: "api-test",
 	//	Name:      "register2",
 	//}
-	//s3 := resources.Service{
-	//	Namespace: "api-test",
-	//}
-	s4 := resources.Service{
-		Name:      "register2",
+	s3 := resources.Service{
 		Namespace: "api-test",
 	}
+	//s4 := resources.Service{
+	//	Name:      "register2",
+	//	Namespace: "api-test",
+	//}
 	//svc := &resources.Service{
 	//	Name:      "register6",
 	//	Namespace: "api-test",
 	//}
 	//s1.Create()
 	//s2.Delete()
-	//s3.List()
-	s4.Update(32001)
+	s3.List()
+	//s4.Update(32001)
 }

@@ -1,4 +1,4 @@
-module k8s-client-go
+module github/gakmi/k8s-client-go
 
 go 1.13
 
@@ -9,6 +9,6 @@ require (
 )
 
 replace (
-	k8s-client-go/kubeconf => /work/pj/k8s-client-go/kubeconf
-	k8s-client-go/resources => /work/pj/k8s-client-go/resources
+	kubeconf => /work/pj/k8s-client-go/kubeconf
+	resources => /work/pj/k8s-client-go/resources
 )
