@@ -7,8 +7,3 @@ require (
 	k8s.io/apimachinery v0.16.4
 	k8s.io/client-go v0.16.4
 )
-
-replace (
-	kubeconf => /work/pj/k8s-client-go/kubeconf
-	resources => /work/pj/k8s-client-go/resources
-)
