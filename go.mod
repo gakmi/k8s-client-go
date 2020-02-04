@@ -8,6 +8,7 @@ replace (
 )
 
 require (
+	github.com/ghodss/yaml v0.0.0-20150909031657-73d445a93680
 	github.com/imdario/mergo v0.3.8 // indirect
 	golang.org/x/oauth2 v0.0.0-20200107190931-bf48bf16ab8d // indirect
 	golang.org/x/time v0.0.0-20191024005414-555d28b269f0 // indirect

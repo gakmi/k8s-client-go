@@ -20,9 +20,9 @@ func main() {
 	//	Namespace: "api-test",
 	//	Name:      "register2",
 	//}
-	s3 := resources.Service{
-		Namespace: "api-test",
-	}
+	//s3 := resources.Service{
+	//	Namespace: "api-test",
+	//}
 	//s4 := resources.Service{
 	//	Name:      "register2",
 	//	Namespace: "api-test",
@@ -33,6 +33,38 @@ func main() {
 	//}
 	//s1.Create()
 	//s2.Delete()
-	s3.List()
+	//s3.List()
+	//s1.GoToYaml()
+	//s1.YamlToGo()
 	//s4.Update(32001)
+
+	// deployment example
+	//d1 := resources.Deployment{
+	//	Namespace: "api-test",
+	//	Name:      "demo-deployment",
+	//}
+	//d1.Create()
+	//d1.List()
+	//d1.Update()
+	//d1.Delete()
+
+	// ingress example
+	//i1 := &resources.Ingress{
+	//	Namespace: "api-test",
+	//	Name:      "register2",
+	//}
+	//i1.Create()
+	//i1.Update()
+	//i1.List()
+	//i1.Delete()
+
+	// configmap example
+	c1 := &resources.ConfigMap{
+		Namespace: "api-test",
+		Name:      "register2",
+	}
+	//c1.Create()
+	//c1.Update()
+	//c1.List()
+	c1.Delete()
 }

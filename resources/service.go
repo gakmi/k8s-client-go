@@ -3,6 +3,7 @@ package resources
 import (
 	"fmt"
 	"github.com/gakmi/k8s-client-go/kubeconf"
+	"github.com/ghodss/yaml"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -20,7 +21,7 @@ type Service struct {
 }
 
 //创建servicesClient
-func client(ns string) clientCoreV1.ServiceInterface {
+func serviceClient(ns string) clientCoreV1.ServiceInterface {
 	kubeClient, _ := kubeconf.NewKubeClient()
 	//ns := "api-test"
 	servicesClient := kubeClient.Clientset.CoreV1().Services(ns)
@@ -28,7 +29,7 @@ func client(ns string) clientCoreV1.ServiceInterface {
 }
 
 func (s *Service) Create() error {
-	servicesClient := client(s.Namespace)
+	servicesClient := serviceClient(s.Namespace)
 	// Create service
 	fmt.Println("Creating Service...")
 	service := &corev1.Service{
@@ -63,7 +64,7 @@ func (s *Service) Create() error {
 }
 
 func (s *Service) Delete() error {
-	servicesClient := client(s.Namespace)
+	servicesClient := serviceClient(s.Namespace)
 	//Delete service
 	fmt.Println("Deleting service...")
 	deletePolicy := metav1.DeletePropagationForeground
@@ -77,7 +78,7 @@ func (s *Service) Delete() error {
 }
 
 func (s *Service) Update(nodeport int32) error {
-	servicesClient := client(s.Namespace)
+	servicesClient := serviceClient(s.Namespace)
 	//Update service
 	fmt.Println("Updating service...")
 	retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
@@ -100,7 +101,7 @@ func (s *Service) Update(nodeport int32) error {
 }
 
 func (s *Service) List() error {
-	servicesClient := client(s.Namespace)
+	servicesClient := serviceClient(s.Namespace)
 	//List service
 	fmt.Printf("Listing services in namespace %q:\n", s.Namespace)
 	list, err := servicesClient.List(metav1.ListOptions{})
@@ -111,4 +112,65 @@ func (s *Service) List() error {
 		fmt.Printf("%s\n", d.Name)
 	}
 	return nil
+}
+
+func (s *Service) GoToYaml() {
+	fmt.Println("go to yaml...")
+	service := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: s.Name,
+			Labels: map[string]string{
+				"project": "api-test",
+			},
+		},
+		Spec: corev1.ServiceSpec{
+			Ports: []corev1.ServicePort{
+				{
+					Name:     s.Name,
+					Protocol: corev1.ProtocolTCP,
+					Port:     s.Port,
+					TargetPort: intstr.IntOrString{
+						IntVal: s.TargetPort,
+					},
+					NodePort: s.NodePort,
+				},
+			},
+			Selector: s.Label,
+			Type:     corev1.ServiceTypeNodePort,
+		},
+	}
+	service.ProtoMessage()
+	y, err := yaml.Marshal(service)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		return
+	}
+	fmt.Println(string(y))
+}
+
+func (s *Service) YamlToGo() {
+	fmt.Println("yaml to go...")
+	var service corev1.Service
+	y := `
+metadata:
+  labels:
+    project: api-test
+  name: register2
+spec:
+  ports:
+  - name: register2
+    nodePort: 32002
+    port: 13001
+    protocol: TCP
+    targetPort: 13001
+  selector:
+    app: register1
+  type: NodePort
+`
+	err := yaml.Unmarshal([]byte(y), &service)
+	if err != nil {
+		fmt.Printf("err: %v\n", err)
+		return
+	}
+	fmt.Println(service)
 }
