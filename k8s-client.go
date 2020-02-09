@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	//"fmt"
 	"github.com/gakmi/k8s-client-go/resources"
 )
 
@@ -39,15 +39,15 @@ func main() {
 	//s4.Update(32001)
 
 	// deployment example
-	d1 := resources.Deployment{
-		Namespace: "admap-test",
-		Name:      "daa-imgpro22",
-	}
+	//d1 := resources.Deployment{
+	//	Namespace: "admap-test",
+	//	Name:      "daa-imgpro22",
+	//}
 	//d1.Create()
 	//d1.List()
 	//d1.Update()
 	//d1.Delete()
-	fmt.Println(d1.Status())
+	//fmt.Println(d1.Status())
 
 	// ingress example
 	//i1 := &resources.Ingress{
@@ -68,4 +68,10 @@ func main() {
 	//c1.Update()
 	//c1.List()
 	//c1.Delete()
+
+	// pod example
+	p1 := resources.Pod{
+		Namespace: "admap-test",
+	}
+	p1.List()
 }

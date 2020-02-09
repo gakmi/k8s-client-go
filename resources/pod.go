@@ -33,3 +33,17 @@ func (p *Pod) Status() bool {
 	fmt.Println(pod)
 	return true
 }
+
+func (p *Pod) List() error {
+	podsClient := podClient(p.Namespace)
+	//List pod
+	fmt.Printf("Listing pods in namespace %q:\n", p.Namespace)
+	list, err := podsClient.List(metav1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+	for _, d := range list.Items {
+		fmt.Printf("%s\n%s\n%s\n", d.Name, d.Status.HostIP, d.Status.Phase)
+	}
+	return nil
+}
