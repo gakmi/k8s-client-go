@@ -10,6 +10,8 @@ import (
 type Pod struct {
 	Namespace string
 	Name      string
+	Node      string
+	Status    string
 }
 
 //创建podsClient
@@ -21,7 +23,7 @@ func podClient(ns string) clientCoreV1.PodInterface {
 }
 
 //获取Pod状态
-func (p *Pod) Status() bool {
+func (p *Pod) Available() bool {
 	podsClient := podClient(p.Namespace)
 	//status pod
 	fmt.Println("status pod...")
@@ -34,7 +36,7 @@ func (p *Pod) Status() bool {
 	return true
 }
 
-func (p *Pod) List() error {
+func (p *Pod) List() []*Pod {
 	podsClient := podClient(p.Namespace)
 	//List pod
 	fmt.Printf("Listing pods in namespace %q:\n", p.Namespace)
@@ -42,8 +44,14 @@ func (p *Pod) List() error {
 	if err != nil {
 		panic(err)
 	}
+	var pods []*Pod
 	for _, d := range list.Items {
-		fmt.Printf("%s\n%s\n%s\n", d.Name, d.Status.HostIP, d.Status.Phase)
+		pod := &Pod{}
+		pod.Name = d.Name
+		pod.Node = d.Status.HostIP
+		pod.Status = string(d.Status.Phase)
+		pods = append(pods, pod)
+		//fmt.Printf("%s\n%s\n%s\n", d.Name, d.Status.HostIP, d.Status.Phase)
 	}
-	return nil
+	return pods
 }

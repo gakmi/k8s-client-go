@@ -1,7 +1,7 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
 	"github.com/gakmi/k8s-client-go/resources"
 )
 
@@ -73,5 +73,8 @@ func main() {
 	p1 := resources.Pod{
 		Namespace: "admap-test",
 	}
-	p1.List()
+	pods := p1.List()
+	for _, p := range pods {
+		fmt.Println(p.Name)
+	}
 }
