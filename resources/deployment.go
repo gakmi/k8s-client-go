@@ -120,4 +120,21 @@ func (s *Deployment) List() error {
 	return nil
 }
 
+//获取Pod状态
+func (s *Deployment) Status() bool {
+	deploymentsClient := deploymentClient(s.Namespace)
+	//status deployment
+	fmt.Println("status deployment...")
+	deployment, err := deploymentsClient.Get(s.Name, metav1.GetOptions{})
+	if err != nil {
+		fmt.Println(err)
+		return false
+	}
+	fmt.Println(deployment.Status.UnavailableReplicas)
+	if deployment.Status.UnavailableReplicas > 0 {
+		return false
+	}
+	return true
+}
+
 func int32Ptr(i int32) *int32 { return &i }

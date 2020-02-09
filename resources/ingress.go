@@ -15,7 +15,7 @@ type Ingress struct {
 	Namespace   string
 	Host        string
 	Path        string
-	Lables      map[string]string
+	Labels      map[string]string
 	ServiceName string
 	ServicePort int32
 }
