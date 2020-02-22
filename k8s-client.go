@@ -1,80 +1,99 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gakmi/k8s-client-go/resources"
+	//"time"
 )
 
 func main() {
-	//	s1 := &resources.Service{
-	//		Namespace:  "api-test",
-	//		Name:       "register2",
-	//		Port:       13001,
-	//		TargetPort: 13001,
-	//		NodePort:   32001,
-	//		Label: map[string]string{
-	//			"app": "register1",
-	//		},
-	//	}
-	//s2 := resources.Service{
-	//	Namespace: "api-test",
-	//	Name:      "register2",
-	//}
-	//s3 := resources.Service{
-	//	Namespace: "api-test",
-	//}
-	//s4 := resources.Service{
-	//	Name:      "register2",
-	//	Namespace: "api-test",
-	//}
-	//svc := &resources.Service{
-	//	Name:      "register6",
-	//	Namespace: "api-test",
-	//}
-	//s1.Create()
-	//s2.Delete()
-	//s3.List()
-	//s1.GoToYaml()
-	//s1.YamlToGo()
-	//s4.Update(32001)
 
-	// deployment example
-	//d1 := resources.Deployment{
-	//	Namespace: "admap-test",
-	//	Name:      "daa-imgpro22",
-	//}
-	//d1.Create()
-	//d1.List()
-	//d1.Update()
-	//d1.Delete()
-	//fmt.Println(d1.Status())
+	/*service*/
+	//	var (
+	//		s = resources.Service{}
+	//
+	//		name            = "t2"
+	//		namespace       = "api-test"
+	//		port      int32 = 13012
+	//	)
+	//
+	//	s.Name = name
+	//	s.Namespace = namespace
+	//	s.Port = port
 
-	// ingress example
-	//i1 := &resources.Ingress{
-	//	Namespace: "api-test",
-	//	Name:      "register2",
-	//}
-	//i1.Create()
-	//i1.Update()
-	//i1.List()
-	//i1.Delete()
+	//s.Delete()
+	//s.Create()
+	//s.List()
+	//s.Update()
 
-	// configmap example
-	//c1 := &resources.ConfigMap{
-	//	Namespace: "api-test",
-	//	Name:      "register2",
-	//}
-	//c1.Create()
-	//c1.Update()
-	//c1.List()
-	//c1.Delete()
+	/*configmap*/
+	var (
+		c = resources.ConfigMap{}
 
-	// pod example
-	p1 := resources.Pod{
-		Namespace: "admap-test",
-	}
-	pods := p1.List()
-	for _, p := range pods {
-		fmt.Println(p.Name)
-	}
+		name      = "t3"
+		namespace = "api-test"
+		logName   = "t3"
+	)
+
+	c.Name = name
+	c.Namespace = namespace
+	c.LogName = logName
+
+	//c.List()
+	//c.Update()
+	c.Create()
+	//c.Delete()
+
+	/*ingress*/
+	//	var (
+	//		i = resources.Ingress{}
+	//
+	//		name              = "t2"
+	//		namespace         = "api-test"
+	//		servicePort int32 = 13003
+	//	)
+	//
+	//	i.Name = name
+	//	i.Namespace = namespace
+	//	i.ServicePort = servicePort
+
+	//i.List()
+	//i.Update()
+	//i.Delete()
+	//i.Create()
+
+	//time.Sleep(time.Duration(6) * time.Second)
+	/*deployment*/
+	//	var (
+	//		d = resources.Deployment{}
+	//
+	//		name               = "t2"
+	//		namespace          = "api-test"
+	//		port         int32 = 13002
+	//		replicas     int32 = 2
+	//		image              = "10.43.75.137/admap-dev/imp-register:20200210150618"
+	//		hostNetwork        = false
+	//		nodeSelector       = "node1"
+	//		logDir             = "/data/logs/imp-register/"
+	//		nfsDir             = "/ADMAP/IMP_DATA"
+	//		nfsServer          = "10.43.75.108"
+	//		nfsPath            = "/data1/admap/IMP_DATA"
+	//	)
+	//
+	//	d.Name = name
+	//	d.Namespace = namespace
+	//	d.Replicas = replicas
+	//	d.Image = image
+	//	d.HostNetwork = hostNetwork
+	//	d.Port = port
+	//	d.NodeSelector = nodeSelector
+	//	d.LogDir = logDir
+	//	d.NFSDir = nfsDir
+	//	d.NFSServer = nfsServer
+	//	d.NFSPath = nfsPath
+	//
+	//	d.Create()
+	//d.List()
+	//d.Update()
+	//d.Delete()
+
 }

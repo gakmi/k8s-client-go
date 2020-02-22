@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 )
 
-//kubeClient结构
+//KubeClient结构
 type KubeClient struct {
 	kubeClientConfig *restclient.Config
 	Clientset        *kubernetes.Clientset

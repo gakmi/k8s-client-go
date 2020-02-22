@@ -8,86 +8,105 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 	clientExtensionsV1beta1 "k8s.io/client-go/kubernetes/typed/extensions/v1beta1"
 	"k8s.io/client-go/util/retry"
+	"log"
 )
 
 type Ingress struct {
 	Name        string
 	Namespace   string
-	Host        string
-	Path        string
-	Labels      map[string]string
-	ServiceName string
 	ServicePort int32
 }
 
 func ingressClient(ns string) clientExtensionsV1beta1.IngressInterface {
 	kubeClient, _ := kubeconf.NewKubeClient()
-	//ns := "api-test"
 	ingressesClient := kubeClient.Clientset.ExtensionsV1beta1().Ingresses(ns)
+
 	return ingressesClient
 }
 
+/*
+创建Ingress
+参数：
+Name
+Namespace
+ServicePort
+*/
 func (s *Ingress) Create() error {
-	ingressesClient := ingressClient(s.Namespace)
-	// Create ingress
-	fmt.Println("Creating Ingress...")
-	ingress := &extensionsv1beat1.Ingress{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:   s.Name,
-			Labels: s.Labels,
-		},
-		Spec: extensionsv1beat1.IngressSpec{
-			Rules: []extensionsv1beat1.IngressRule{
-				extensionsv1beat1.IngressRule{
-					Host: s.Host,
-					IngressRuleValue: extensionsv1beat1.IngressRuleValue{
-						HTTP: &extensionsv1beat1.HTTPIngressRuleValue{
-							Paths: []extensionsv1beat1.HTTPIngressPath{
-								extensionsv1beat1.HTTPIngressPath{
-									Path: s.Path,
-									Backend: extensionsv1beat1.IngressBackend{
-										ServiceName: s.ServiceName,
-										ServicePort: intstr.IntOrString{
-											IntVal: s.ServicePort,
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
+
+	var (
+		ingressesClient = ingressClient(s.Namespace)
+		ingress         = extensionsv1beat1.Ingress{}
+
+		name        = s.Name
+		namespace   = s.Namespace
+		host        = s.Name + "." + s.Namespace
+		serviceName = s.Name
+		servicePort = intstr.IntOrString{
+			IntVal: s.ServicePort,
+		}
+		backend     = &extensionsv1beat1.IngressBackend{}
+		ingressRule = extensionsv1beat1.IngressRule{}
+		rules       = []extensionsv1beat1.IngressRule{}
+	)
+
+	backend.ServiceName = serviceName
+	backend.ServicePort = servicePort
+	ingressRule.Host = host
+	rules = append(rules, ingressRule)
+	ingress.Name = name
+	ingress.Namespace = namespace
+	ingress.Spec.Rules = rules
+	ingress.Spec.Backend = backend
+
+	log.Println("Creating Ingress...")
+	if result, err := ingressesClient.Create(&ingress); err != nil {
+		log.Println(err)
+		return err
+	} else {
+		log.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
+		return nil
 	}
-	result, err := ingressesClient.Create(ingress)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("Created ingress %q.\n", result.GetObjectMeta().GetName())
-	return nil
+
 }
 
+/*
+删除Ingress
+参数:
+Name
+Namespace
+*/
 func (s *Ingress) Delete() error {
-	ingressesClient := ingressClient(s.Namespace)
-	//Delete ingress
-	fmt.Println("Deleting ingress...")
-	deletePolicy := metav1.DeletePropagationForeground
+	var (
+		ingressesClient = ingressClient(s.Namespace)
+
+		deletePolicy = metav1.DeletePropagationForeground
+	)
+
+	log.Println("Deleting ingress...")
 	if err := ingressesClient.Delete(s.Name, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
 		panic(err)
+	} else {
+		log.Println("Deleted ingress...")
+		return nil
 	}
-	fmt.Println("Deleted ingress...")
-	return nil
 }
 
+/*
+更新Ingress
+参数：
+Name
+Namespace
+ServicePort
+*/
 func (s *Ingress) Update() error {
-	ingressesClient := ingressClient(s.Namespace)
-	//Update ingress
-	fmt.Println("Updating ingress...")
-	retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		// Retrieve the latest version of Deployment before attempting update
-		// RetryOnConflict uses exponential backoff to avoid exhausting the apiserver
+	var (
+		ingressesClient = ingressClient(s.Namespace)
+	)
+
+	log.Println("Updating ingress...")
+	if retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		result, getErr := ingressesClient.Get(s.Name, metav1.GetOptions{})
 		if getErr != nil {
 			panic(fmt.Errorf("Failed to get latest version of Ingress: %v", getErr))
@@ -96,24 +115,31 @@ func (s *Ingress) Update() error {
 		result.Spec.Rules[0].Host = "register.com"
 		_, updateErr := ingressesClient.Update(result)
 		return updateErr
-	})
-	if retryErr != nil {
+	}); retryErr != nil {
 		panic(fmt.Errorf("Update failed: %v", retryErr))
+	} else {
+		log.Println("Updated ingress...")
+		return nil
 	}
-	fmt.Println("Updated ingress...")
-	return nil
 }
 
+/*
+查看Ingress
+参数:
+Namespace
+*/
 func (s *Ingress) List() error {
-	ingressesClient := ingressClient(s.Namespace)
-	//List ingress
-	fmt.Printf("Listing ingresss in namespace %q:\n", s.Namespace)
-	list, err := ingressesClient.List(metav1.ListOptions{})
-	if err != nil {
+	var (
+		ingressesClient = ingressClient(s.Namespace)
+	)
+
+	log.Printf("Listing ingresss in namespace %q:\n", s.Namespace)
+	if list, err := ingressesClient.List(metav1.ListOptions{}); err != nil {
 		panic(err)
+	} else {
+		for _, d := range list.Items {
+			log.Printf("%s\n", d.Name)
+		}
+		return nil
 	}
-	for _, d := range list.Items {
-		fmt.Printf("%s\n", d.Name)
-	}
-	return nil
 }

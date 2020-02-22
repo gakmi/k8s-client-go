@@ -3,174 +3,170 @@ package resources
 import (
 	"fmt"
 	"github.com/gakmi/k8s-client-go/kubeconf"
-	"github.com/ghodss/yaml"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	clientCoreV1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/util/retry"
+	"log"
 )
 
 type Service struct {
-	Namespace  string
-	Name       string
-	Port       int32
-	NodePort   int32
-	TargetPort int32
-	Label      map[string]string
+	Namespace string
+	Name      string
+	Port      int32
 }
 
 //创建servicesClient
 func serviceClient(ns string) clientCoreV1.ServiceInterface {
+
 	kubeClient, _ := kubeconf.NewKubeClient()
-	//ns := "api-test"
 	servicesClient := kubeClient.Clientset.CoreV1().Services(ns)
+
 	return servicesClient
+
 }
 
+/*
+创建Service
+参数：
+Name
+Namespace
+Port
+*/
 func (s *Service) Create() error {
-	servicesClient := serviceClient(s.Namespace)
-	// Create service
-	fmt.Println("Creating Service...")
-	service := &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: s.Name,
-			Labels: map[string]string{
-				"project": "api-test",
-			},
-		},
-		Spec: corev1.ServiceSpec{
-			Ports: []corev1.ServicePort{
-				{
-					Name:     s.Name,
-					Protocol: corev1.ProtocolTCP,
-					Port:     s.Port,
-					TargetPort: intstr.IntOrString{
-						IntVal: s.TargetPort,
-					},
-					NodePort: s.NodePort,
-				},
-			},
-			Selector: s.Label,
-			Type:     corev1.ServiceTypeNodePort,
-		},
+
+	var (
+		servicesClient = serviceClient(s.Namespace)
+		service        = corev1.Service{}
+
+		name        = s.Name
+		namespace   = s.Namespace
+		ports       = []corev1.ServicePort{}
+		labels      = make(map[string]string)
+		annotations = make(map[string]string)
+		selector    = make(map[string]string)
+		servicePort corev1.ServicePort
+		serviceType corev1.ServiceType
+	)
+
+	servicePort.TargetPort = intstr.IntOrString{
+		IntVal: s.Port,
 	}
-	result, err := servicesClient.Create(service)
-	if err != nil {
-		panic(err)
+	servicePort.Port = s.Port
+	servicePort.Name = s.Name
+	ports = append(ports, servicePort)
+	labels["app"] = s.Name
+	selector = labels
+	serviceType = "ClusterIP"
+
+	//设置labels
+	service.Labels = labels
+	//设置annotations
+	service.Annotations = annotations
+	//设置name
+	service.Name = name
+	//设置namespace
+	service.Namespace = namespace
+	//设置ports
+	service.Spec.Ports = ports
+	//设置selector
+	service.Spec.Selector = selector
+	//设置type
+	service.Spec.Type = serviceType
+
+	log.Println("Createing Service...")
+	if _, err := servicesClient.Create(&service); err != nil {
+		log.Println(err)
+		return err
+	} else {
+		log.Println("Created Service.")
+		return nil
 	}
-	fmt.Printf("Created service %q.\n", result.GetObjectMeta().GetName())
-	return nil
+
 }
 
+/*
+删除Service
+参数：
+Name
+Namespace
+*/
 func (s *Service) Delete() error {
-	servicesClient := serviceClient(s.Namespace)
-	//Delete service
-	fmt.Println("Deleting service...")
-	deletePolicy := metav1.DeletePropagationForeground
+
+	var (
+		servicesClient = serviceClient(s.Namespace)
+
+		deletePolicy = metav1.DeletePropagationForeground
+	)
+
+	log.Println("Deleting service...")
 	if err := servicesClient.Delete(s.Name, &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
-		panic(err)
+		log.Println(err)
+		return err
+	} else {
+		log.Println("Deleted service.")
+		return nil
 	}
-	fmt.Println("Deleted deployment.")
-	return nil
+
 }
 
-func (s *Service) Update(nodeport int32) error {
-	servicesClient := serviceClient(s.Namespace)
-	//Update service
-	fmt.Println("Updating service...")
-	retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		// Retrieve the latest version of Deployment before attempting update
-		// RetryOnConflict uses exponential backoff to avoid exhausting the apiserver
+/*
+更新Service
+Name
+Namespace
+Port
+*/
+func (s *Service) Update() error {
+
+	var (
+		servicesClient = serviceClient(s.Namespace)
+	)
+
+	log.Println("Updating service...")
+	if retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		result, getErr := servicesClient.Get(s.Name, metav1.GetOptions{})
 		if getErr != nil {
 			panic(fmt.Errorf("Failed to get latest version of Deployment: %v", getErr))
 		}
 
-		result.Spec.Ports[0].NodePort = nodeport
+		result.Spec.Ports[0].Port = s.Port
+		result.Spec.Ports[0].TargetPort = intstr.IntOrString{
+			IntVal: s.Port,
+		}
 		_, updateErr := servicesClient.Update(result)
+
 		return updateErr
-	})
-	if retryErr != nil {
+	}); retryErr != nil {
 		panic(fmt.Errorf("Update failed: %v", retryErr))
+	} else {
+		log.Println("Updated service...")
+		return nil
 	}
-	fmt.Println("Updated service...")
-	return nil
+
 }
 
+/*
+查看Service
+参数：
+Namespace
+*/
 func (s *Service) List() error {
-	servicesClient := serviceClient(s.Namespace)
-	//List service
-	fmt.Printf("Listing services in namespace %q:\n", s.Namespace)
-	list, err := servicesClient.List(metav1.ListOptions{})
-	if err != nil {
+
+	var (
+		servicesClient = serviceClient(s.Namespace)
+	)
+
+	log.Printf("Listing Service in namespace %q:\n", s.Namespace)
+	if list, err := servicesClient.List(metav1.ListOptions{}); err != nil {
 		panic(err)
+	} else {
+		for _, d := range list.Items {
+			log.Printf("%s\n", d.Name)
+		}
+		return nil
 	}
-	for _, d := range list.Items {
-		fmt.Printf("%s\n", d.Name)
-	}
-	return nil
-}
 
-func (s *Service) GoToYaml() {
-	fmt.Println("go to yaml...")
-	service := &corev1.Service{
-		ObjectMeta: metav1.ObjectMeta{
-			Name: s.Name,
-			Labels: map[string]string{
-				"project": "api-test",
-			},
-		},
-		Spec: corev1.ServiceSpec{
-			Ports: []corev1.ServicePort{
-				{
-					Name:     s.Name,
-					Protocol: corev1.ProtocolTCP,
-					Port:     s.Port,
-					TargetPort: intstr.IntOrString{
-						IntVal: s.TargetPort,
-					},
-					NodePort: s.NodePort,
-				},
-			},
-			Selector: s.Label,
-			Type:     corev1.ServiceTypeNodePort,
-		},
-	}
-	service.ProtoMessage()
-	y, err := yaml.Marshal(service)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		return
-	}
-	fmt.Println(string(y))
-}
-
-func (s *Service) YamlToGo() {
-	fmt.Println("yaml to go...")
-	var service corev1.Service
-	y := `
-metadata:
-  labels:
-    project: api-test
-  name: register2
-spec:
-  ports:
-  - name: register2
-    nodePort: 32002
-    port: 13001
-    protocol: TCP
-    targetPort: 13001
-  selector:
-    app: register1
-  type: NodePort
-`
-	err := yaml.Unmarshal([]byte(y), &service)
-	if err != nil {
-		fmt.Printf("err: %v\n", err)
-		return
-	}
-	fmt.Println(service)
 }
