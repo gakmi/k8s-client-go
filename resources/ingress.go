@@ -42,19 +42,26 @@ func (s *Ingress) Create() error {
 		servicePort = intstr.IntOrString{
 			IntVal: s.ServicePort,
 		}
-		backend     = &extensionsv1beat1.IngressBackend{}
+		backend     = extensionsv1beat1.IngressBackend{}
+		path        = extensionsv1beat1.HTTPIngressPath{}
+		paths       = []extensionsv1beat1.HTTPIngressPath{}
+		http        = &extensionsv1beat1.HTTPIngressRuleValue{}
 		ingressRule = extensionsv1beat1.IngressRule{}
 		rules       = []extensionsv1beat1.IngressRule{}
 	)
 
+	ingressRule.Host = host
+	path.Path = "/"
 	backend.ServiceName = serviceName
 	backend.ServicePort = servicePort
-	ingressRule.Host = host
+	path.Backend = backend
+	paths = append(paths, path)
+	http.Paths = paths
+	ingressRule.HTTP = http
 	rules = append(rules, ingressRule)
 	ingress.Name = name
 	ingress.Namespace = namespace
 	ingress.Spec.Rules = rules
-	ingress.Spec.Backend = backend
 
 	log.Println("Creating Ingress...")
 	if result, err := ingressesClient.Create(&ingress); err != nil {
