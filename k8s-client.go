@@ -32,11 +32,13 @@ func main() {
 		name      = "t3"
 		namespace = "api-test"
 		logName   = "t3"
+		es        = `["http://10.43.75.138:9200", "http://10.43.75.139:9200", "http://10.43.75.140:9200"]`
 	)
 
 	c.Name = name
 	c.Namespace = namespace
 	c.LogName = logName
+	c.ES = es
 
 	//c.List()
 	//c.Update()
@@ -49,12 +51,10 @@ func main() {
 	//
 	//		name              = "t2"
 	//		namespace         = "api-test"
-	//		servicePort int32 = 13003
 	//	)
 	//
 	//	i.Name = name
 	//	i.Namespace = namespace
-	//	i.ServicePort = servicePort
 
 	//i.List()
 	//i.Update()

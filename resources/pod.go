@@ -16,8 +16,6 @@ type Pod struct {
 
 //创建podsClient
 func podClient(ns string) clientCoreV1.PodInterface {
-	kubeClient, _ := kubeconf.NewKubeClient()
-	//ns := "api-test"
 	podsClient := kubeClient.Clientset.CoreV1().Pods(ns)
 	return podsClient
 }

@@ -19,8 +19,6 @@ type Service struct {
 
 //创建servicesClient
 func serviceClient(ns string) clientCoreV1.ServiceInterface {
-
-	kubeClient, _ := kubeconf.NewKubeClient()
 	servicesClient := kubeClient.Clientset.CoreV1().Services(ns)
 
 	return servicesClient

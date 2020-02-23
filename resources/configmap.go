@@ -14,10 +14,10 @@ type ConfigMap struct {
 	Namespace string
 	Name      string
 	LogName   string
+	ES        string
 }
 
 func configmapClient(ns string) clientCoreV1.ConfigMapInterface {
-	kubeClient, _ := kubeconf.NewKubeClient()
 	configmapsClient := kubeClient.Clientset.CoreV1().ConfigMaps(ns)
 
 	return configmapsClient
@@ -60,11 +60,11 @@ setup.template.name: "%s-%s"
 setup.template.pattern: "%s-%s-*"
 setup.ilm.enabled: false
 output.elasticsearch:
-  hosts: ["http://10.43.75.138:9200", "http://10.43.75.139:9200", "http://10.43.75.140:9200"]
+  hosts: %s
   index: "%s-%s-%s"
 processors:
   - drop_fields:
-      fields: ["input","log","beat","offset","source","host","span","trace","parent"]`, s.LogName, s.Name, s.Name, s.Namespace, s.Name, s.Namespace, s.Name, s.Namespace, "%{+yyyy.MM.dd}")
+      fields: ["input","log","beat","offset","source","host","span","trace","parent"]`, s.LogName, s.Name, s.Name, s.Namespace, s.Name, s.Namespace, s.ES, s.Name, s.Namespace, "%{+yyyy.MM.dd}")
 
 	configmap.Name = name
 	configmap.Namespace = namespace
@@ -118,8 +118,6 @@ func (s *ConfigMap) Update() error {
 	)
 	log.Println("Updating configmap...")
 	if retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		// Retrieve the latest version of Deployment before attempting update
-		// RetryOnConflict uses exponential backoff to avoid exhausting the apiserver
 		result, getErr := configmapsClient.Get(s.Name, metav1.GetOptions{})
 		if getErr != nil {
 			panic(fmt.Errorf("Failed to get latest version of Deployment: %v", getErr))
@@ -142,11 +140,11 @@ setup.template.name: "%s-%s"
 setup.template.pattern: "%s-%s-*"
 setup.ilm.enabled: false
 output.elasticsearch:
-  hosts: ["http://10.43.75.138:9200", "http://10.43.75.139:9200", "http://10.43.75.140:9200"]
+  hosts: %s
   index: "%s-%s-%s"
 processors:
   - drop_fields:
-      fields: ["input","log","beat","offset","source","host","span","trace","parent"]`, s.Name, s.Name, s.Name, s.Namespace, s.Name, s.Namespace, s.Name, s.Namespace, "%{+yyyy.MM.dd}")
+      fields: ["input","log","beat","offset","source","host","span","trace","parent"]`, s.Name, s.Name, s.Name, s.Namespace, s.Name, s.Namespace, s.ES, s.Name, s.Namespace, "%{+yyyy.MM.dd}")
 
 		_, updateErr := configmapsClient.Update(result)
 		return updateErr

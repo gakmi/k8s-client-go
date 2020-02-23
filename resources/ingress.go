@@ -12,13 +12,11 @@ import (
 )
 
 type Ingress struct {
-	Name        string
-	Namespace   string
-	ServicePort int32
+	Name      string
+	Namespace string
 }
 
 func ingressClient(ns string) clientExtensionsV1beta1.IngressInterface {
-	kubeClient, _ := kubeconf.NewKubeClient()
 	ingressesClient := kubeClient.Clientset.ExtensionsV1beta1().Ingresses(ns)
 
 	return ingressesClient
@@ -42,7 +40,8 @@ func (s *Ingress) Create() error {
 		host        = s.Name + "." + s.Namespace
 		serviceName = s.Name
 		servicePort = intstr.IntOrString{
-			IntVal: s.ServicePort,
+			//IntVal: s.ServicePort,
+			StrVal: s.Name,
 		}
 		backend     = &extensionsv1beat1.IngressBackend{}
 		ingressRule = extensionsv1beat1.IngressRule{}

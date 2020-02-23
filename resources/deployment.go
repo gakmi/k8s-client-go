@@ -30,7 +30,6 @@ type Deployment struct {
 }
 
 func deploymentClient(ns string) clientAppsV1.DeploymentInterface {
-	kubeClient, _ := kubeconf.NewKubeClient()
 	deploymentsClient := kubeClient.Clientset.AppsV1().Deployments(ns)
 
 	return deploymentsClient
