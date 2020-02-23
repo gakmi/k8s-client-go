@@ -29,10 +29,10 @@ func main() {
 	var (
 		c = resources.ConfigMap{}
 
-		name      = "t3"
+		name      = "t4"
 		namespace = "api-test"
-		logName   = "t3"
-		es        = `["http://10.43.75.138:9200", "http://10.43.75.139:9200", "http://10.43.75.140:9200"]`
+		logName   = "t4"
+		es        = `["http://es1:9200", "http://es2:9200", "http://es3:9200"]`
 	)
 
 	c.Name = name
@@ -42,8 +42,8 @@ func main() {
 
 	//c.List()
 	//c.Update()
-	c.Create()
-	//c.Delete()
+	//c.Create()
+	c.Delete()
 
 	/*ingress*/
 	//	var (
@@ -70,13 +70,13 @@ func main() {
 	//		namespace          = "api-test"
 	//		port         int32 = 13002
 	//		replicas     int32 = 2
-	//		image              = "10.43.75.137/admap-dev/imp-register:20200210150618"
+	//		image              = "ip/project/register:v1.0.0"
 	//		hostNetwork        = false
 	//		nodeSelector       = "node1"
-	//		logDir             = "/data/logs/imp-register/"
-	//		nfsDir             = "/ADMAP/IMP_DATA"
-	//		nfsServer          = "10.43.75.108"
-	//		nfsPath            = "/data1/admap/IMP_DATA"
+	//		logDir             = "/data/logs/register/"
+	//		nfsDir             = "/nfs"
+	//		nfsServer          = "xx"
+	//		nfsPath            = "/nfs"
 	//	)
 	//
 	//	d.Name = name

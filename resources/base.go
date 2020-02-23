@@ -1,11 +1,14 @@
 package resources
 
-import "github.com/gakmi/k8s-client-go/kubeconf"
+import (
+	"github.com/gakmi/k8s-client-go/kubeconf"
+)
 
-var kubeClient kubeconf.KubeClient
+var KubeClient *kubeconf.KubeClient
 
 func init() {
-	if kubeClient, err := kubeconf.NewKubeClient(); err != nil {
+	var err error
+	if KubeClient, err = kubeconf.NewKubeClient(); err != nil {
 		panic(err)
 	}
 }

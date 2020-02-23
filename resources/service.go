@@ -2,7 +2,6 @@ package resources
 
 import (
 	"fmt"
-	"github.com/gakmi/k8s-client-go/kubeconf"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -19,7 +18,7 @@ type Service struct {
 
 //创建servicesClient
 func serviceClient(ns string) clientCoreV1.ServiceInterface {
-	servicesClient := kubeClient.Clientset.CoreV1().Services(ns)
+	servicesClient := KubeClient.Clientset.CoreV1().Services(ns)
 
 	return servicesClient
 

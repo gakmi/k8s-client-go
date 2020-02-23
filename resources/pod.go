@@ -2,7 +2,6 @@ package resources
 
 import (
 	"fmt"
-	"github.com/gakmi/k8s-client-go/kubeconf"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientCoreV1 "k8s.io/client-go/kubernetes/typed/core/v1"
 )
@@ -16,7 +15,7 @@ type Pod struct {
 
 //创建podsClient
 func podClient(ns string) clientCoreV1.PodInterface {
-	podsClient := kubeClient.Clientset.CoreV1().Pods(ns)
+	podsClient := KubeClient.Clientset.CoreV1().Pods(ns)
 	return podsClient
 }
 

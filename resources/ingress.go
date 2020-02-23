@@ -2,7 +2,6 @@ package resources
 
 import (
 	"fmt"
-	"github.com/gakmi/k8s-client-go/kubeconf"
 	extensionsv1beat1 "k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
@@ -17,7 +16,7 @@ type Ingress struct {
 }
 
 func ingressClient(ns string) clientExtensionsV1beta1.IngressInterface {
-	ingressesClient := kubeClient.Clientset.ExtensionsV1beta1().Ingresses(ns)
+	ingressesClient := KubeClient.Clientset.ExtensionsV1beta1().Ingresses(ns)
 
 	return ingressesClient
 }

@@ -2,7 +2,6 @@ package resources
 
 import (
 	"fmt"
-	"github.com/gakmi/k8s-client-go/kubeconf"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	clientCoreV1 "k8s.io/client-go/kubernetes/typed/core/v1"
@@ -18,7 +17,7 @@ type ConfigMap struct {
 }
 
 func configmapClient(ns string) clientCoreV1.ConfigMapInterface {
-	configmapsClient := kubeClient.Clientset.CoreV1().ConfigMaps(ns)
+	configmapsClient := KubeClient.Clientset.CoreV1().ConfigMaps(ns)
 
 	return configmapsClient
 }

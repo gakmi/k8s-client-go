@@ -3,7 +3,6 @@ package resources
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gakmi/k8s-client-go/kubeconf"
 	"io/ioutil"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -30,7 +29,7 @@ type Deployment struct {
 }
 
 func deploymentClient(ns string) clientAppsV1.DeploymentInterface {
-	deploymentsClient := kubeClient.Clientset.AppsV1().Deployments(ns)
+	deploymentsClient := KubeClient.Clientset.AppsV1().Deployments(ns)
 
 	return deploymentsClient
 }
