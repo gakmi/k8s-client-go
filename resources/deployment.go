@@ -96,7 +96,9 @@ func (s *Deployment) Create() error {
 
 	labels["app"] = s.Name
 	selector.MatchLabels = labels
-	nodeSelector["node"] = s.NodeSelector
+	if s.NodeSelector != "" {
+		nodeSelector["node"] = s.NodeSelector
+	}
 	//containers
 	port.ContainerPort = s.Port
 	ports = append(ports, port)
@@ -167,7 +169,9 @@ func (s *Deployment) Create() error {
 	//template
 	template.Labels = labels
 	template.Spec.HostNetwork = hostNetwork
-	template.Spec.NodeSelector = nodeSelector
+	if nodeSelector != nil {
+		template.Spec.NodeSelector = nodeSelector
+	}
 	template.Spec.Containers = containers
 	template.Spec.Volumes = volumes
 
