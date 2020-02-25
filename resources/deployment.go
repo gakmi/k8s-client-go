@@ -227,6 +227,13 @@ func (s *Deployment) Update() error {
 
 	var (
 		deploymentsClient = deploymentClient(s.Namespace)
+
+		port         = corev1.ContainerPort{}
+		ports        = []corev1.ContainerPort{}
+		nodeSelector = make(map[string]string)
+		replicas     = int32Ptr(s.Replicas)
+		volumeMounts = []corev1.VolumeMount{}
+		volMLog      = corev1.VolumeMount{}
 	)
 
 	log.Println("Updating deployment...")
@@ -235,7 +242,22 @@ func (s *Deployment) Update() error {
 		if getErr != nil {
 			panic(fmt.Errorf("Failed to get latest version of Deployment: %v", getErr))
 		}
-		result.Spec.Template.Spec.Containers[0].Image = "nginx:1.13"
+		//修改镜像
+		result.Spec.Template.Spec.Containers[0].Image = s.Image
+		//修改副本数
+		result.Spec.Replicas = replicas
+		//修改node节点
+		nodeSelector["node"] = s.NodeSelector
+		result.Spec.Template.Spec.NodeSelector = nodeSelector
+		//修改服务端口
+		port.ContainerPort = s.Port
+		ports = append(ports, port)
+		result.Spec.Template.Spec.Containers[0].Ports = ports
+		//修改日志目录
+		volMLog.MountPath = s.LogDir
+		volumeMounts = append(volumeMounts, volMLog)
+		result.Spec.Template.Spec.Containers[0].VolumeMounts = volumeMounts
+
 		_, updateErr := deploymentsClient.Update(result)
 		return updateErr
 	}); retryErr != nil {
@@ -251,7 +273,7 @@ func (s *Deployment) Update() error {
 参数:
 Namespace
 */
-func (s *Deployment) List() error {
+func (s *Deployment) List() ([]appsv1.Deployment, error) {
 	var (
 		deploymentsClient = deploymentClient(s.Namespace)
 	)
@@ -263,7 +285,7 @@ func (s *Deployment) List() error {
 		for _, d := range list.Items {
 			log.Printf("%s\n", d.Name)
 		}
-		return nil
+		return list.Items, nil
 	}
 }
 
