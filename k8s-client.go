@@ -96,4 +96,18 @@ func main() {
 	//	d.Update()
 	//	d.Delete()
 
+	/*Node*/
+	//var (
+	//	node = resources.Node{}
+	//)
+
+	//node.List()
+
+	/*Namespace*/
+	var (
+		namespace = resources.Namespace{}
+	)
+
+	namespace.List()
+
 }
