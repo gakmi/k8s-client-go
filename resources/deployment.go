@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	res "k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	yaml2 "k8s.io/apimachinery/pkg/util/yaml"
@@ -362,7 +363,7 @@ func (s *Deployment) CreateByYaml() error {
 	}
 
 	// 查询k8s是否有该deployment
-	if _, err = deploymentsClient.Get(deployment.Name, meta_v1.GetOptions{}); err != nil {
+	if _, err = deploymentsClient.Get(deployment.Name, metav1.GetOptions{}); err != nil {
 		if !errors.IsNotFound(err) {
 			log.Println(err)
 			return err
