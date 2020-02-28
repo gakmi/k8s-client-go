@@ -26,6 +26,8 @@ type Deployment struct {
 	NFSServer    string
 	NFSPath      string
 	LogDir       string
+
+	AppJson []byte
 }
 
 func deploymentClient(ns string) clientAppsV1.DeploymentInterface {
@@ -340,4 +342,42 @@ func ContainerSidecar() appsv1.Deployment {
 	log.Println(deployment)
 	return deployment
 
+}
+
+func (s *Deployment) CreateByYaml() error {
+	var (
+		deploymentsClient = deploymentClient(s.Namespace)
+		deployment        = appsv1.Deployment{}
+		deployJson        []byte
+
+		err error
+	)
+
+	deployJson = s.AppJson
+
+	// JSON转struct
+	if err = json.Unmarshal(deployJson, &deployment); err != nil {
+		log.Println(err)
+		return err
+	}
+
+	// 查询k8s是否有该deployment
+	if _, err = deploymentsClient.Get(deployment.Name, meta_v1.GetOptions{}); err != nil {
+		if !errors.IsNotFound(err) {
+			log.Println(err)
+			return err
+		}
+		// 不存在则创建
+		if _, err = deploymentsClient.Create(&deployment); err != nil {
+			log.Println(err)
+			return err
+		}
+	} else { // 已存在则更新
+		if _, err = deploymentsClient.Update(&deployment); err != nil {
+			log.Println(err)
+			return err
+		}
+	}
+
+	return nil
 }
